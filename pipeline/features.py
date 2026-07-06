@@ -12,6 +12,7 @@ Features per message:
 import math
 import time
 import sqlite3
+import hashlib
 import numpy as np
 from pipeline.db import init_db, insert_feature_batch, get_conn, DB_PATH
 
@@ -30,8 +31,9 @@ def _entropy(payload_hex: str) -> float:
 
 
 def _id_transition_hash(prev: str, cur: str) -> int:
-    # Stable hash of the (prev, cur) bigram that fits in a signed int
-    return hash((prev, cur)) & 0x7FFFFFFF
+    # deterministic — md5 of the bigram string
+    key = f"{prev}{cur}".encode()
+    return int(hashlib.md5(key).hexdigest()[:8], 16)
 
 
 def extract(batch_size: int = 50_000):

@@ -69,6 +69,7 @@ registry = ModelRegistry()
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     registry.load()
+    _warm_window()
     yield
 
 
@@ -88,7 +89,8 @@ def _entropy(data: bytes) -> float:
 
 
 def _id_transition_hash(prev: str, cur: str) -> int:
-    return hash((prev, cur)) & 0x7FFFFFFF
+    key = f"{prev}{cur}".encode()
+    return int(hashlib.md5(key).hexdigest()[:8], 16)
 
 
 # Simple in-process window for frequency estimation (not shared across workers)
@@ -96,6 +98,26 @@ _id_window: list[str] = []
 _prev_ts: Optional[float] = None
 _prev_id: Optional[str] = None
 WINDOW = 100
+
+# Normal CAN IDs seen in training — used to warm the feature window
+_NORMAL_IDS = [
+    "0244", "0260", "0316", "0329", "03A0", "03B0",
+    "043F", "0545", "05A0", "05E0", "0636", "0710",
+]
+
+
+def _warm_window():
+    """Seed the sliding window with synthetic normal traffic so first
+    real predictions have stable frequency estimates."""
+    global _prev_ts, _prev_id
+    import time as _time
+    t = _time.time() - 1.0
+    for i in range(WINDOW):
+        cid = _NORMAL_IDS[i % len(_NORMAL_IDS)]
+        _id_window.append(cid)
+        _prev_ts = t
+        _prev_id = cid
+        t += 0.002
 
 
 def extract_features(can_id: str, payload_hex: str, timestamp: float) -> np.ndarray:
