@@ -56,11 +56,11 @@ Total params: 10,949
 | Class  | Precision | Recall | F1     |
 |--------|-----------|--------|--------|
 | DoS    | 1.0000    | 1.0000 | 1.0000 |
-| Fuzzy  | 0.9786    | 0.9890 | 0.9838 |
-| Gear   | 1.0000    | 1.0000 | 1.0000 |
-| Normal | 0.9992    | 0.9968 | 0.9980 |
-| RPM    | 0.9591    | 0.9997 | 0.9789 |
-| **Overall accuracy** | | | **0.9968** |
+| Fuzzy  | 0.9549    | 0.9810 | 0.9678 |
+| Gear   | 0.9997    | 1.0000 | 0.9998 |
+| Normal | 0.9986    | 0.9950 | 0.9968 |
+| RPM    | 0.9609    | 0.9993 | 0.9797 |
+| **Overall accuracy** | | | **0.9948** |
 
 **Latency** (direct `model()` call, 1000 trials, CPU-only, Windows/oneDNN): p50 = 13.7 ms, p99 = 20.6 ms
 
@@ -73,7 +73,7 @@ Total params: 10,949
 | Model           | Accuracy | F1 (macro) | p50 Latency | Size   |
 |-----------------|----------|------------|-------------|--------|
 | Random Forest   | 1.0000   | 1.0000     | 18 ms (single sample) | ~50 MB |
-| 1D-CNN          | 0.9968   | 0.9921     | 13.7 ms (CPU/Windows) | 171 KB |
+| 1D-CNN          | 0.9948   | 0.9888     | 13.7 ms (CPU/Windows) | 171 KB |
 
 
 ---

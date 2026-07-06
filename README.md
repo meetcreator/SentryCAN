@@ -26,10 +26,6 @@ api/
 
 dashboard/
   app.py                 Streamlit — live replay, detection log, inject-attack button
-
-Dockerfile.api
-Dockerfile.dashboard
-docker-compose.yml
 ```
 
 ---
@@ -52,15 +48,6 @@ streamlit run dashboard/app.py
 Dashboard: http://localhost:8501  
 API docs: http://localhost:8000/docs
 
-## Docker
-
-```bash
-# Must run pipeline first to populate data/ and models/artifacts/
-python run_pipeline.py
-
-docker compose up --build
-```
-
 ---
 
 ## API
@@ -76,17 +63,13 @@ Content-Type: application/json
   "timestamp": 1700000000.0
 }
 
-→ { "label": "DoS", "confidence": 0.97, "latency_ms": 1.2, "model": "cnn" }
+→ { "label": "DoS", "confidence": 0.997, "latency_ms": 13.7, "model": "cnn" }
 ```
 
----
-
-## Results (synthetic data)
-
-See `results/summary.md` after running the pipeline.
+See `results/summary.md` for full metrics.
 
 ---
 
 ## Stack
 
-- Python, SQLite, scikit-learn, TensorFlow/Keras, FastAPI, Streamlit, Docker
+- Python, SQLite, scikit-learn, TensorFlow/Keras, FastAPI, Streamlit
