@@ -1,0 +1,11 @@
+.venv/
+__pycache__/
+*.pyc
+data/sentrycan.db
+models/artifacts/
+results/*.png
+results/*.json
+.env
+*.egg-info/
+dist/
+build/
