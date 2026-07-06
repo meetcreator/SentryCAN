@@ -58,20 +58,16 @@ st.markdown("""
 
 # ---- session state ----
 def _init_state():
-    defaults = {
-        "running": False,
-        "log": [],           # list of dicts
-        "total": 0,
-        "attacks": 0,
-        "latencies": [],
-        "fp_count": 0,
-        "labeled_count": 0,
-        "test_msgs": None,
-        "replay_idx": 0,
-    }
-    for k, v in defaults.items():
-        if k not in st.session_state:
-            st.session_state[k] = v
+    ss = st.session_state
+    ss.setdefault("running", False)
+    ss.setdefault("log", [])
+    ss.setdefault("total", 0)
+    ss.setdefault("attacks", 0)
+    ss.setdefault("latencies", [])
+    ss.setdefault("fp_count", 0)
+    ss.setdefault("labeled_count", 0)
+    ss.setdefault("test_msgs", None)
+    ss.setdefault("replay_idx", 0)
 
 _init_state()
 
