@@ -155,37 +155,37 @@ col_ctrl1, col_ctrl2, col_ctrl3, col_ctrl4 = st.columns([1, 1, 1, 3])
 
 with col_ctrl1:
     if st.button("Start replay", disabled=not api_live):
-        if st.session_state.test_msgs is None:
+        if st.session_state["test_msgs"] is None:
             with st.spinner("Loading test messages from DB..."):
-                st.session_state.test_msgs = load_test_messages(2000)
-        st.session_state.running = True
+                st.session_state["test_msgs"] = load_test_messages(2000)
+        st.session_state["running"] = True
 
 with col_ctrl2:
     if st.button("Pause"):
-        st.session_state.running = False
+        st.session_state["running"] = False
 
 with col_ctrl3:
     if st.button("Inject attack burst", disabled=not api_live):
         burst = _attack_burst()
-        if st.session_state.test_msgs is not None:
+        if st.session_state["test_msgs"] is not None:
             # prepend burst to front of queue
-            st.session_state.test_msgs = burst + st.session_state.test_msgs[st.session_state.replay_idx:]
-            st.session_state.replay_idx = 0
+            st.session_state["test_msgs"] = burst + st.session_state["test_msgs"][st.session_state["replay_idx"]:]
+            st.session_state["replay_idx"] = 0
         else:
-            st.session_state.test_msgs = burst
-            st.session_state.replay_idx = 0
-        st.session_state.running = True
+            st.session_state["test_msgs"] = burst
+            st.session_state["replay_idx"] = 0
+        st.session_state["running"] = True
 
 # ---- stats row ----
 st.divider()
 m1, m2, m3, m4 = st.columns(4)
-m1.metric("Messages processed", st.session_state.total)
-m2.metric("Attacks detected", st.session_state.attacks)
-avg_lat = (sum(st.session_state.latencies) / len(st.session_state.latencies)
-           if st.session_state.latencies else 0.0)
+m1.metric("Messages processed", st.session_state["total"])
+m2.metric("Attacks detected", st.session_state["attacks"])
+avg_lat = (sum(st.session_state["latencies"]) / len(st.session_state["latencies"])
+           if st.session_state["latencies"] else 0.0)
 m3.metric("Avg latency", f"{avg_lat:.2f} ms")
-fp_rate = (st.session_state.fp_count / st.session_state.labeled_count
-           if st.session_state.labeled_count else 0.0)
+fp_rate = (st.session_state["fp_count"] / st.session_state["labeled_count"]
+           if st.session_state["labeled_count"] else 0.0)
 m4.metric("False positive rate", f"{fp_rate:.2%}")
 
 st.divider()
@@ -194,7 +194,7 @@ st.divider()
 log_placeholder = st.empty()
 
 def _render_log():
-    rows = st.session_state.log[-60:][::-1]  # newest first, max 60
+    rows = st.session_state["log"][-60:][::-1]  # newest first, max 60
     if not rows:
         log_placeholder.info("No messages yet. Click 'Start replay'.")
         return
@@ -217,13 +217,13 @@ def _render_log():
 _render_log()
 
 # ---- replay loop ----
-if st.session_state.running and api_live and st.session_state.test_msgs:
-    msgs = st.session_state.test_msgs
-    idx = st.session_state.replay_idx
+if st.session_state["running"] and api_live and st.session_state["test_msgs"]:
+    msgs = st.session_state["test_msgs"]
+    idx = st.session_state["replay_idx"]
 
     batch = msgs[idx: idx + REPLAY_BATCH]
     if not batch:
-        st.session_state.running = False
+        st.session_state["running"] = False
         st.info("Replay complete.")
     else:
         for msg in batch:
@@ -234,18 +234,18 @@ if st.session_state.running and api_live and st.session_state.test_msgs:
                 lat = resp.get("latency_ms", 0.0)
                 true_l = msg.get("label", "?")
 
-                st.session_state.total += 1
-                st.session_state.latencies.append(lat)
-                if len(st.session_state.latencies) > 1000:
-                    st.session_state.latencies.pop(0)
+                st.session_state["total"] += 1
+                st.session_state["latencies"].append(lat)
+                if len(st.session_state["latencies"]) > 1000:
+                    st.session_state["latencies"].pop(0)
                 if pred != "Normal":
-                    st.session_state.attacks += 1
+                    st.session_state["attacks"] += 1
                 if true_l and true_l != "?":
-                    st.session_state.labeled_count += 1
+                    st.session_state["labeled_count"] += 1
                     if pred != true_l:
-                        st.session_state.fp_count += 1
+                        st.session_state["fp_count"] += 1
 
-                st.session_state.log.append({
+                st.session_state["log"].append({
                     "time": time.strftime("%H:%M:%S"),
                     "can_id": msg["can_id"],
                     "payload_short": msg["payload"][:8],
@@ -254,6 +254,6 @@ if st.session_state.running and api_live and st.session_state.test_msgs:
                     "latency_ms": f"{lat:.2f}",
                 })
 
-        st.session_state.replay_idx = idx + REPLAY_BATCH
+        st.session_state["replay_idx"] = idx + REPLAY_BATCH
         time.sleep(TICK_INTERVAL)
         st.rerun()
